@@ -65,6 +65,13 @@ class AVLTree:
             return node 
         
         updateHeight(node)
+
+    def preorder(self, root):
+        if root is None:
+            return
+        print(root.value)
+        self.preorder(root.left)
+        self.preorder(root.right)
     
     def eliminarnodo(self, node, value):
         if not node:
@@ -99,5 +106,34 @@ class AVLTree:
         if balance < -1 and self.balance(Node.right) > 0:
             Node.right = self.rotateR(Node.right)
             return self.rotateL(Node)
-        return Node
+            
+            
+        balance = getBalance(node)
+
+        #falta colocar el return de las rotaciones, si este no se encuentra, la raiz no cambia
+        #Es decir 
+
+        if balance > 1 and getBalance(node.left) >= 0:
+             rotate_right(node) 
+        elif balance > 1 and getBalance(node.left) < 0:
+            node.left = rotate_left(node.left)
+            rotate_right(node) 
+        elif balance < -1 and getBalance(node.right) <= 0:
+            rotate_left(node)
+        elif balance < -1 and getBalance(node.right) > 0:
+            node.right = rotate_right(node.right)
+            rotate_left(node) 
         
+        return node 
+    
+
+
+avl = AVLTree()
+values_to_insert = [10, 20, 30, 40, 50, 25]
+
+print("Insertando valores:", values_to_insert)
+for val in values_to_insert:
+    avl.insert(val)
+
+print("\n--- Después de inserciones ---")
+
