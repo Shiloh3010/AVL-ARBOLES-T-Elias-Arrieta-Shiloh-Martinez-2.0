@@ -66,47 +66,35 @@ class AVLTree:
         
         updateHeight(node)
 
-    def preorder(self, root):
+    def inorden(self, root):
         if root is None:
             return
         print(root.value)
-        self.preorder(root.left)
-        self.preorder(root.right)
+        self.inorder(root.left)
+        self.inorder(root.right)
     
     def eliminarnodo(self, node, value):
         if not node:
-            return Node
+            return node
         elif value < node.value:
-            Node.left = self.delete(val, Node.left)
+            node.left = self.delete(val, node.left)
         elif val > Node.value:
-            Node.right = self.delete(val, Node.right)
+            node.right = self.delete(val, node.right)
         else:
-            if Node.left is None:
+            if node.left is None:
                 lt = Node.right
-                Node = None
+                node = None
                 return lt
-            elif Node.right is None:
-                lt = Node.left
-                Node = None
+            elif node.right is None:
+                lt = node.left
+                node = None
                 return lt
-            rgt = self.MinimumValueNode(Node.right)
-            Node.value = rgt.value
-            Node.right = self.delete(rgt.value, Node.right)
-        if Node is None:
-            return Node
-        Node.height = 1 + max(self.height(Node.left), self.height(Node.right))
-        balance = self.balance(Node)
-        if balance > 1 and self.balance(Node.left) >= 0:
-            return self.rotateR(Node)
-        if balance < -1 and self.balance(Node.right) <= 0:
-            return self.rotateL(Node)
-        if balance > 1 and self.balance(Node.left) < 0:
-            Node.left = self.rotateL(Node.left)
-            return self.rotateR(Node)
-        if balance < -1 and self.balance(Node.right) > 0:
-            Node.right = self.rotateR(Node.right)
-            return self.rotateL(Node)
-            
+            rgt = self.MinimumValueNode(node.right)
+            node.value = rgt.value
+            node.right = self.delete(rgt.value, node.right)
+        if node is None:
+            return node
+        node.height = 1 + max(self.height(Node.left), self.height(Node.right))
             
         balance = getBalance(node)
 
@@ -114,15 +102,15 @@ class AVLTree:
         #Es decir 
 
         if balance > 1 and getBalance(node.left) >= 0:
-             rotate_right(node) 
+             return rotate_right(node) 
         elif balance > 1 and getBalance(node.left) < 0:
             node.left = rotate_left(node.left)
-            rotate_right(node) 
+            return rotate_right(node) 
         elif balance < -1 and getBalance(node.right) <= 0:
-            rotate_left(node)
+            return rotate_left(node)
         elif balance < -1 and getBalance(node.right) > 0:
             node.right = rotate_right(node.right)
-            rotate_left(node) 
+            return rotate_left(node) 
         
         return node 
     
