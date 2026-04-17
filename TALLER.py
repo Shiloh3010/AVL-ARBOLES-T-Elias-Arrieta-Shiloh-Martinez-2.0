@@ -76,25 +76,22 @@ class AVLTree:
     def eliminarnodo(self, node, value):
         if not node:
             return node
-        elif value < node.value:
-            node.left = self.delete(val, node.left)
-        elif val > Node.value:
-            node.right = self.delete(val, node.right)
+        if value < node.value:
+            node.left = self.delete(node.left, value)
+        elif value > Node.value:
+            node.right = self.delete(node.right, value)
         else:
+            #CASO 1 DONDE NO HAY HIJOS O SOLO 1
             if node.left is None:
-                lt = Node.right
-                node = None
-                return lt
+                return node.rigth
             elif node.right is None:
-                lt = node.left
-                node = None
-                return lt
-            rgt = self.MinimumValueNode(node.right)
-            node.value = rgt.value
-            node.right = self.delete(rgt.value, node.right)
-        if node is None:
-            return node
-        node.height = 1 + max(self.height(Node.left), self.height(Node.right))
+                return node.left
+                #CASO 2 DOS HIJOS
+            temp = self.getMinimumValueNode(node.right)
+            node.value = temp.value
+            node.right = self.delete(temp.value, node.right)
+            #ACTUALIZAR ALTURA
+            updateHeight(node)
             
         balance = getBalance(node)
 
