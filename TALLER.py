@@ -1,124 +1,178 @@
-import sys 
-
-class Node:
-    def __init__(self, value):
-        self.value = value
-        self.left = None
-        self.right = None
-        self.height = 1 
-
-
-def getHeight(node):
-    if not node:
-        return 0
-    return node.height
-
-def getBalance(node):
-    if not node:
-        return 0
-    return getHeight(node.left) - getHeight(node.right)
-
-def updateHeight(node):
-    if node:
-        node.height = 1 + max(getHeight(node.left), getHeight(node.right))
-
-def rotate_right(y):
-    x = y.left
-    T2 = x.right
-
-    x.right = y
-    y.left = T2
-
-    updateHeight(y)
-    updateHeight(x)
-
-    return x
-
-def rotate_left(x):
-    y = x.right
-    T2 = y.left
-
-    y.left = x
-    x.right = T2
-
-    updateHeight(x)
-    updateHeight(y)
-
-    return y
-
 class AVLTree:
+
+    class Node:
+        def __init__(self, value):
+            self.value = value
+            self.left = None
+            self.right = None
+            self.height = 1
+
     def __init__(self):
         self.root = None
 
-    def insert(self, value):
-        self.root = self._insert_recursive(self.root, value)
+    def getHeight(self, node):
+        return node.height if node else 0
 
-    def _insert_recursive(self, node, value):
+    def getBalance(self, node):
+        return self.getHeight(node.left) - self.getHeight(node.right) if node else 0
+
+    def updateHeight(self, node):
+        node.height = 1 + max(self.getHeight(node.left), self.getHeight(node.right))
+
+    def rotate_right(self, y):
+        x = y.left
+        T2 = x.right
+
+        x.right = y
+        y.left = T2
+
+        self.updateHeight(y)
+        self.updateHeight(x)
+
+        return x
+
+    def rotate_left(self, x):
+        y = x.right
+        T2 = y.left
+
+        y.left = x
+        x.right = T2
+
+        self.updateHeight(x)
+        self.updateHeight(y)
+
+        return y
+
+    def insert(self, value):
+        self.root = self._insert(self.root, value)
+
+    def _insert(self, node, value):
         if not node:
-            return Node(value)
+            return self.Node(value)
 
         if value < node.value:
-            node.left = self._insert_recursive(node.left, value)
+            node.left = self._insert(node.left, value)
         elif value > node.value:
-            node.right = self._insert_recursive(node.right, value)
+            node.right = self._insert(node.right, value)
         else:
-            return node 
-        
-        updateHeight(node)
+            return node
 
-    def inorden(self, root):
-        if root is None:
-            return
-        print(root.value)
-        self.inorder(root.left)
-        self.inorder(root.right)
-    
-    def eliminarnodo(self, node, value):
+        self.updateHeight(node)
+        balance = self.getBalance(node)
+
+        if balance > 1 and value < node.left.value:
+            return self.rotate_right(node)
+
+        if balance < -1 and value > node.right.value:
+            return self.rotate_left(node)
+
+        if balance > 1 and value > node.left.value:
+            node.left = self.rotate_left(node.left)
+            return self.rotate_right(node)
+
+        if balance < -1 and value < node.right.value:
+            node.right = self.rotate_right(node.right)
+            return self.rotate_left(node)
+
+        return node
+
+    def delete(self, value):
+        self.root = self._delete(self.root, value)
+
+    def _delete(self, node, value):
         if not node:
             return node
+
         if value < node.value:
-            node.left = self.delete(node.left, value)
-        elif value > Node.value:
-            node.right = self.delete(node.right, value)
+            node.left = self._delete(node.left, value)
+        elif value > node.value:
+            node.right = self._delete(node.right, value)
         else:
-            #CASO 1 DONDE NO HAY HIJOS O SOLO 1
-            if node.left is None:
-                return node.rigth
-            elif node.right is None:
+            if not node.left:
+                return node.right
+            elif not node.right:
                 return node.left
-                #CASO 2 DOS HIJOS
-            temp = self.getMinimumValueNode(node.right)
+
+            temp = self._minValueNode(node.right)
             node.value = temp.value
-            node.right = self.delete(temp.value, node.right)
-            #ACTUALIZAR ALTURA
-            updateHeight(node)
-            
-        balance = getBalance(node)
+            node.right = self._delete(node.right, temp.value)
 
-        #falta colocar el return de las rotaciones, si este no se encuentra, la raiz no cambia
-        #Es decir 
+        self.updateHeight(node)
+        balance = self.getBalance(node)
 
-        if balance > 1 and getBalance(node.left) >= 0:
-             return rotate_right(node) 
-        elif balance > 1 and getBalance(node.left) < 0:
-            node.left = rotate_left(node.left)
-            return rotate_right(node) 
-        elif balance < -1 and getBalance(node.right) <= 0:
-            return rotate_left(node)
-        elif balance < -1 and getBalance(node.right) > 0:
-            node.right = rotate_right(node.right)
-            return rotate_left(node) 
-        
-        return node 
+        if balance > 1 and self.getBalance(node.left) >= 0:
+            return self.rotate_right(node)
+
+        if balance > 1 and self.getBalance(node.left) < 0:
+            node.left = self.rotate_left(node.left)
+            return self.rotate_right(node)
+
+        if balance < -1 and self.getBalance(node.right) <= 0:
+            return self.rotate_left(node)
+
+        if balance < -1 and self.getBalance(node.right) > 0:
+            node.right = self.rotate_right(node.right)
+            return self.rotate_left(node)
+
+        return node
+
+    def _minValueNode(self, node):
+        current = node
+        while current.left:
+            current = current.left
+        return current
+
+    def inorder(self):
+        return self._inorder(self.root)
+
+    def _inorder(self, node):
+        if not node:
+            return []
+        return self._inorder(node.left) + [node.value] + self._inorder(node.right)
     
 
+#CASOS DE PRUEBA 
 
-avl = AVLTree()
-values_to_insert = [10, 20, 30, 40, 50, 25]
+if __name__ == "__main__":
+    avl = AVLTree()
 
-print("Insertando valores:", values_to_insert)
-for val in values_to_insert:
-    avl.insert(val)
+    print("caso 1: Rotación RR")
+    valores = [10, 20, 30]
+    for v in valores:
+        avl.insert(v)
+    print("Inorden:", avl.inorder())
+    print()
 
-print("\n--- Después de inserciones ---")
+    avl = AVLTree()
+    print("caso 2: Rotación LL")
+    valores = [30, 20, 10]
+    for v in valores:
+        avl.insert(v)
+    print("Inorden:", avl.inorder())
+    print()
 
+    avl = AVLTree()
+    print("Caso 3: Rotación LR")
+    valores = [30, 10, 20]
+    for v in valores:
+        avl.insert(v)
+    print("Inorden:", avl.inorder())
+    print()
+
+    avl = AVLTree()
+    print("Caso 4: Rotación RL")
+    valores = [10, 30, 20]
+    for v in valores:
+        avl.insert(v)
+    print("Inorden:", avl.inorder())
+    print()
+
+    avl = AVLTree()
+    print("Caso5: Eliminación")
+    valores = [10, 20, 30, 40, 50, 25]
+    for v in valores:
+        avl.insert(v)
+
+    print("Antes de eliminar:", avl.inorder())
+    avl.delete(50)
+    print("Después de eliminar 50:", avl.inorder())
